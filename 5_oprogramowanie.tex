@@ -1,0 +1,41 @@
+\chapter{Oprogramowanie systemu}
+\label{cha:oprogramowanie}
+
+\section{System operacyjny i środowisko}
+- Czym jest ROS2 i dlaczego został wybrany
+- Czym jest microros
+- Instalacja ROS2 Jazzy Jalisco i konfiguracja.  
+
+Raspberry Pi umożliwia uruchomienie środowiska Linux Ubuntu 24.04. Taka wersja linuxa jest potrzebna do uruchomienia ROS.
+
+AKTUALIZACJE
+Przez użycie w projektu microros należało dokonać kilku zmian. MicroROS bardzo słabo działa z wersją JAZZY, należało zmienić distro na humble. Problem był taki, że humble nie działa na wersji ubuntu 24.04, która była pod JAZZY, należało postawić ubuntu 22.04. No ale ta wersja ubuntu nie działa na Raspberry pi 5. Dlatego z projektu usunięto Raspberry pi. 
+
+\section{Sterowanie serwomechanizmami z wykorzystaniem PCA9685}
+\\ opis programowania sterownika I2C przez rejestry\\
+
+\section{Sterowanie silnikiem krokowym z wykorzystaniem DRV8825}
+
+\\Opis sterowania silnikiem krokowym z wykorzystaniem sterownika\\
+\\Bazowanie robota z wykorzystaniem czujnika halla
+
+\section{Umieszczenie całego sterowania na ESP32 z microROS}
+Cały kod trzeba będzie przerobić na ROS2
+
+\section{MoveIt i RVis}
+RVis jest narzędziem środowiska ROS, pozwalające na pizualizację robota. 
+MoveIt to narzędzie pozwalające na planowanie kinematyki robota. 
+
+\section{URDF - Unified Robot Description Format}
+URDF to plik XML opisujący model robota, składający się z połączeń i ruchomych osi robota. Jest wykorzystywany w ROS w narzędziach pozwalających na wizualizację robota jak rviz czy Gazebo. 
+
+Plik URDF można wygenerować bezpośrednio z modelu CAD, używając takich programów jak Solidworks. Ja użyłem Fusion 360 i skryptu napisanego przez społeczność dostępnego na github.
+
+https://github.com/syuntoku14/fusion2urdf
+
+Aby użyć narzędzia należy poprawnie skonstruować model zgodnie z instrukcją w README.
+
+
+
+\section{Rozpoznawanie mowy za pośrednictwem biblioteki whisper AI}
+

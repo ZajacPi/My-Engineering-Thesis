@@ -1,0 +1,48 @@
+\chapter{Projekt układów elektronicznych}
+\label{cha:elektronika}
+
+
+\section{ESP32 z microROS}
+Microros pozwala na połączenie mikrokontrolera z układem ROS. Komunikacja przez UART lub Wifi.
+
+\section{Mikroprocesow dla ROS2}
+
+Sercem projektu miało być Raspberry Pi 5, posiadające wyjścia I/O umożliwiające komunikację mikrokontrolera z resztą elektroniki. \\
+Nie udało się wykorzystać raspberry, pomijając, że jest słabe, nie pozwala ani sterować silnikiem krokowym, ani komunikować się sprawnie z microros w wersji jazzy, a humble nie da się zainstalować.
+
+Dlatego mikroprocesowem całego projektu będzie laptop z Ubuntu 22.04 bootowanym z przenośnego dysku SSD.
+
+\section{Serwonapędy oraz moduł PCA9685}
+Do ruchu osiami zastosowano serwonapędy. \\
+Krótki opis jak otrzymać wymagany kąt na serwonapędzie przy pwm\\
+Raspberry pi nie jest dobre do generowania dobrego sygnału PWM, a co dopiero pięciu. Dlatego serwonapędy są sterowane przy pomocy modułu PCA9685, który generuje sygnały PWM na wszystkich serwonapędach jednocześnie, i komunikuje się z Raspberry Pi przez protokół I2C.
+Dodatkowo pozwala to na przeprowadzenie przez slip ring jedynie 4 przewodów: 2 zasilające, 2 do I2C.
+
+Serwonapędy osi 2, 3 i 4 są obsługiwane napięcie, 7,4V co pozwala uzyskać z nich maksymalny moment siły, natomiast ostatnie dwa serwonapędy są obsługiwane napięciem 6V. Dodatkowo, sterownik PCA9685 przyjmuje napięcie 5V. W takim wypadku, należy zamocować regulator napięcia Buck Converter, który zmniejsza napięcie z małymi stratami energii do 6V, natomiast do PCA9685 dodatkowo zamontować regulator LM7805 zmniejszający napięcie do 5V.
+
+\section{Silnik krokowy}
+Do poruszania pierwszą osią zastosowano silnik krokowy JK42HS48-1204, który kontrolowany jest przy pomocy sterownika serwonapędu DRV8825. 
+Probem jest taki, że Raspberry pi nie nadaje się do generowania dobrego sygnału sterującego silnikiem krokowym, ponieważ raspberry pi z systemem linux nie jest systemem real time. Próby sterowania silnika krokowego przez Raspberry pi zakończyły się porażką, silnik wydawał tylko wysokie piskliwe dźwięki. 
+W takich wypadkach, stosuje się połączenie mikroprocesora jakim jest raspberry z mikrokontrolerem. Do tego służy micro-ros. W moim projekcie użyję ESP32, potężnego mikrokontrolera zawierającego moduł bluetooth i wifi.
+
+Stworzono płytkę prototypową w której połączono ESP ze sterownikiem. Sterownik należało nastroić do pracy z 12V (9V nie zadziałało) tak, żeby pomiędzy potencjometrem a masą było napięcie o wartości dwukrotnie niższej niż natężenie silnika. Wykonano testy, wszystko śmigało, następnie spróbowano wgrać microros i sterować silnikiem przez raspberry
+
+Silnik krokowy wymaga bazowania przy starcie aby zapewnić poprawną orientację robota. Do tego wykorzystano magnes oraz cyfrowy czujnik halla A3144, który na wyjściu daje stan wysoki przy pojawieniu się pola magnetycznego. 
+
+\section{Zasilanie całego projektu}
+Ponieważ zastosowano silniki używające różnych napięć
+\begin{itemize}
+    \item Silnik krokody: 12V
+    
+\end{itemize}
+\subsection{Przekształtnik buck}
+Czym jest, jak działa, jaka sprawność, czy podbija natężenie. 
+
+\subsection{Rozwiązanie zasilania}
+(schemat blokowy) \\
+
+(wstawić poprawione obliczenia)\\
+Serwonapędy w najgorszym wypadku 3,5A, ale skoro pierwszy silnik się zatnie przy jakiejś masie to można policzyć ile wtedy będzie miało kolejne serwo, bo przecież ma o wiele krótsze ramię, i kolejne jeszcze krótsze, więc mogę oszacować ile w najgorszym przypadku będzie pobierać prądu. 
+Mam 3 duże serwa pobierające 3,5A, dwa małe pobierające najgorzej 750mA, i silnik krokowy 1,2A. Więc najgorzej około 5,5A. Więc w najgorszym wypadku serwa będą pobierać 4,3A. Więc potrzebuję regulatora napięcia który zbije 12V do 7,4V do serwonapędów i wytrzyma 4,3A. Buck converter też zwiększy ampery. Więc 12V * xA = 7,4V x 12A, czyli x=7,4A, więc teoretycznie zasilacz 12V 8A jest jeszcze z małym zapasem.
+Wniosek: Zasilacz 12V 10A powinien starczyć
+

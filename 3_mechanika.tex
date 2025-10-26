@@ -1,0 +1,65 @@
+\chapter{Kontstrukcja robota}
+\label{cha:mechanika}
+
+\section{Robot sześcioosiowy}
+czym jest, dlazcego taki został zastosowany, schemat, przestrzeń robocza, 
+
+\section{Druk 3D}
+Dynamiczny rozwój technologii druku 3D w ostatnich latach umożliwia na wytwarzanie prototypowych części o wysokiej dokładności i złożoności w krótkim czasiem, jednocześnie niskim nakładem finansowym. Drukarki takie jak Bambu Lab A1 oferują bardzo wysoką dokładność oraz prędkość druku, automatyczną kalibrację oraz poziomowanie stołu a nawet zmianę filamentu przy użyciu dodatkowej stacji AMS, mieszcząc się w koszcie 1400zł. Tej drukarki użyłem w swoim projekcie. 
+Części mechaniczne robota zostały wykonane głównie w technologii FDM (angl. Fused Deposition Modeling). Metoda ta poswala na szybkie i tanie prototypowanie, a także na stworzenie geometrii niemożliwej do wykonania w innych sposobach wytwarzania (np. obróbce CNC).  
+Obecnie dostępny jest bardzo szeroki wybór rodzajów filamentów, z których najpopularniejsze to:
+
+\begin{itemize}
+ \item  PLA czyli  polilaktyd (ang. polylactic acid), łatwy w druku oraz tani, ale nie wykazuje dużej wytrzymałości oraz ma bardzo słabą odporność termiczną. 
+ 
+ \item  ABS czyli akrylonitryl-butadien-styren (angl. Acrylonitrile butadiene styrene) mniej popularny od PLA oraz o wiele mocniejszy, ale trudniejszy w druku przez konieczność stosowania wyższej temperatury oraz używania komory do odprowadzania toksycznych oparów. 
+ 
+ \item PETG  (angl. Polyethylene Terephthalate Glycol) czyli zmodyikowany PET znajdujący się w butelkach. Filament jest tworzony z recyklingowanych butelek, co sprawia, że używanie go jest dodatkowo przyjazne dla środowiska. Łączy zalety ABS oraz PLA. Jest łatwiejszy w druku od ABS, a jednocześnie oferuje zwiększoną wytrzymałość od PLA.
+ \item TPU (Thermoplastic Polyurethane), czyli elastyczny filament 
+ \item Nylon lub inaczej PA (angl. Polyamide),
+ \item PC (angl. Polycarbonate) czyli jeden z najmocniejszych filamentów, odpornych na uszkodzenia mechaniczne oraz termiczne, jednak trudny w druku i wymagający dokładnych ustawień oraz komory.
+\end{itemize}
+
+\\
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/filaments.png}
+    \caption{https://all3dp.com/1/3d-printer-filament-types-3d-printing-3d-filament/}
+    \label{fig:placeholder}
+\end{figure}
+
+W procesie prototypowania aby skupić się na konstrukcji oraz poprawnych wymairach zastosowano PLA, przez co proces drukowania odbywał się bez problemów i efekty były bardzo zadowalające. 
+W ostatecznej wersji planowana jest zmiana filamentu na bardziej odporny mechanicznie np. PETG lub ABS. 
+
+Dokładne dopasowanie części tak, aby wchodziły na wcisk wymagało kilku iteracji testów konstrukcji. 
+ 
+
+\section{Pierwsza oś}
+Do ruchu pierwszej osi zastosowano silnik krokowy, który połączony jest z pierwszą osią za pomocą pasa transmisyjnego. Pozwala to na ewentualną zmianę przełożenia, oraz izoluje silnik od reszty konstrukcji.
+
+Pierwsza oś montowana jest do podstawy za pomocą dwóch łożysk obrotowych co zapewnia sztywność, oraz łożyska igiełkowego oporowego zapewniającego dobry ślizg.
+
+Aby zapobiec plątaniu się przewodów przy wielu obrotach zastosowano slip ring. 
+
+\section{Kolejne osie}
+Reszta osi jest poruszana przy pomocy serwomechanizmów o momencie siły 35kg*cm.
+
+Największą obawą przy projektowaniu ramienia sześcioosiowego była druga oś, odpowiadająca za podnoszenie całego ramienia. Przez swoje długie ramię moment siły wywierany na serwomechanizm może być bardzo duży, i podnoszenie nawet małych ciężarów na pełnym wyciągnięciu mogłoby być wymagające. Jednak po wstępnym przeliczeniu momentów sił wywieranych przez poszczególne serwonapędy (największa masa ramienia) oraz wykonaniu i zważeniu wydruków 35kg*cm powinno zapewnić wystarczająco dużo siły. Jednak na wszelki wypadek ramię pierwsze zaprojektowano z możliwością dodania jeszcze jednego serwomechanizmu, co w efekcie podwoiłoby wywierany na pierwszą oś moment siły. 
+
+Aby ukryć przewody w projekcie, zaprojektowano specjalne przejścia, a pomiędzy częściami przewody przechodzą przez łożyska.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/Arm2.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+
+\section{Kiść}
+Do obsługi ostatnich dwóch osi użyto małych serwomechnaizmów małęj mocy.
+
+\\
+testy momentu siły pojedynczego serwa, oraz momentu siły złożonego robota.
+
+

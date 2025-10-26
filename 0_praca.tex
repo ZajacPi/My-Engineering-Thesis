@@ -1,0 +1,73 @@
+\documentclass[12pt]{aghdpl}
+% \documentclass[language=en,11pt]{aghdpl}  % praca w języku angielskim
+
+%---------------------------------------------------------------------------
+% hyperref dodaje odnośniki wewnętrz dokumentu (np. spis treści jest już klikalny, dotyczy również odwołań, obrazków, cytowań, równań itp.). Pozostałe opcje powodują brak widoczności linków oraz zmieniają właściwości pliku pdf. Szczegóły: https://www.overleaf.com/learn/latex/Hyperlinks
+\usepackage[hidelinks, pdftitle={Ramię robota przemysłowego wspomagającego zadania montażowe}, pdfauthor = {P.Zając}]{hyperref}
+
+%%%%%%
+
+\author{Piotr Zając}
+\shortauthor{P. Zając}
+
+
+\titlePL{Ramię robota przemysłowego wspomagającego zadania montażowe}
+\titleEN{Industrial Robotic Arm Supporting Assembly Tasks}
+
+
+\shorttitlePL{Ramię robota przemysłowego wspomagającego zadania montażowe} % skrócona wersja tytułu jeśli jest bardzo długi
+% \shorttitleEN{Preparation of a long and fascinating thesis in \LaTeX}
+
+
+% Dopuszczalne wartości[1,2]:
+% * "Projekt dyplomowy" - na koniec studiów I stopnia
+% * "Praca dyplomowa" - na koniec studiów II stopnia
+% [1] Zasady dyplomowania w roku akademickim 2020/2021 (Decyzja Dziekana WEAIiIB nr 16/2020 z dnia 9 grudnia 2020 roku)
+% [2] Załącznik nr 1a) do Decyzji nr 16/2020 Dziekana Wydziału EAIiIB z dnia 09 grudnia 2020 r.
+\thesistype{Projekt dyplomowy}
+%\thesistype{Master of Science Thesis}
+
+\supervisor{dr inż. Dawid Knapik}
+
+
+\degreeprogramme{Automatyka i Robotyka}
+%\degreeprogramme{Automatics and Robotics}
+
+\date{2026}
+
+% \department{Katedra Informatyki Stosowanej}
+%\department{Department of Applied Computer Science}
+
+\faculty{Wydział Elektrotechniki, Automatyki, Informatyki i Inżynierii Biomedycznej}
+%\faculty{Faculty of Electrical Engineering, Automatics, Computer Science and Biomedical Engineering}
+
+\acknowledgements{Serdecznie dziękuję XYZ\dots }
+
+
+\begin{document}
+
+	\titlepages
+	\RedefinePlainStyle
+	
+	\setcounter{tocdepth}{2}
+	\tableofcontents
+	\clearpage
+
+  
+	\include{1_wstep}
+	\include{2_teoria}
+	\include{3_mechanika}
+    \include{4_elektronika}
+    \include{5_oprogramowanie}
+	\include{6_testy}
+	\include{7_podsumowanie}
+	
+	% itd.
+	% \appendix
+	% \include{dodatekA}
+	% \include{dodatekB}
+	% itd.
+	
+	\printbibliography
+
+\end{document}
