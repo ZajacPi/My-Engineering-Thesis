@@ -1,37 +1,68 @@
-\chapter{Wprowadzenie}
+\chapter{Introduction}
 \label{cha:wprowadzenie}
 
-Żyjemy w złotych czasach dla konstruktorów. Powszechny dostęp do darmowej wiedzy, narzędzi do obróbek różnorakich materiałów czy drukarek 3D sprawiają, że prototypowanie i wdrażanie swoich pomysłów w życie jest łatwiejsze niż kiedykolwiek.
+In recent years, access to advanced engineering knowledge and tools has become increasingly available. Free online educational resources have flattened the learning curve, and affordable electronic components and manufacturing tools, such as 3D printers, have significantly lowered the barrier to transforming engineering ideas into functioning prototypes. As a result, individual makers and small research teams are now able to develop complex systems that were previously accessible only to industrial or academic institutions.
 
-Szczególnym osiągnięciem społeczności twórców są technologie open source, czyli bezpłatnie dostępne oprogramowania i projekty, które udostępniają kod źródłowy. Dzięki bezinteresownej pracy pasjonatów są one rozwijane i pozwalają niezależnym twórcom na stosowanie zaawansowanych narzędzi w swojej pracy.
+A key factor that enabled this dynamic development was the emergence of open-source technologies. The internet allowed inventors from all around the world to share their concepts and collaborate with each other, creating free-to-use software frameworks, design tools, and complete hardware projects with publicly available documentation and source files. Open-source solutions promote unlimited accessibility to knowledge and global collaboration while allowing developers to build upon existing work.
 
-Częstym tematem własnych projektów jest automatyzacja, przede wszystkim procesów, z którymi stykamy się w życiu codziennym. Automatyzacja coraz częściej pojawia się w naszych domach: inteligentni asystenci ułatwiający wyszukiwanie informacji za pomocą głosu, sztuczna inteligencja znacznie przyspieszająca przeprowadzanie żmudnych procesów, automatyczne narzędzia użytku domowego jak robot odkurzacz. Praca w warsztacie również została w znacznej części zautomatyzowana, prototypy są wytwarzane za pomocą druku 3D, natomiast części wykonane z metalu lub drewna coraz częściej nie są robione na tokarce ręcznej, tylko na maszynach CNC.
+Robotics is a natural area in which these trends are visible. The combination of mechanical design, electronics, and software makes robotic systems particularly well suited to open-source development and rapid prototyping. As a result, robotic projects have become increasingly popular within the maker community and in educational environments. One of the biggest open-source frameworks created for robotics is ROS - Robot Operating System, which provides a collection of tools and libraries for robot development.
 
-Jednak w kontekście automatyzacji domowej robot sześcioosiowy jest rzadko spotykany. Najtańsze roboty dostępne do kupienia, takie jak mechArm 270 czy  Dobot Nova 2 kosztują tysiące złotych i do ich obsługi potrzebne jest wstępne zaprogramowanie z poziomu komputera - umiejętność, którą nie każdy posiada.
+Despite this progress, six-degree-of-freedom (6DOF) robotic manipulators remain relatively inaccessible to individual users. Commercially available robot arms, such as compact desktop manipulators intended for educational or light industrial use, have a relatively high cost. Additionally, such systems often have hardware that cannot be modified or a closed software ecosystem, which limits their suitability for experimental or educational use. 
 
-Istnieją również ramienia open source, takie jak AR4 (https://anninrobotics.com/) czy też też BCN3D MOVEO, ale stworzenie samodzielnie takiego robota łączy się z wysokim kosztem i progiem umiejętności potrzebnym do jego wykonania. 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Images/Mech_Arm_270.png}
+    \caption{mechArm 6DOF robot from Elephant Robotics \cite{mech_arm_270}}
+    \label{fig:mecharm}
+\end{figure}
+% Dobot Nova 2
+\newpage
 
-% cel pracy, Dlaczego temat jest istotny, Jakie problemy rozwiązuje robot? 
-Celem projektu było zaprojektowanie i zbudowanie ramienia dostępnego cenowo, które miałoby znacznie ułatwiony mechanizm sterowania.
+On the other hand, existing open-source robotic arm projects provide detailed documentation and freely available designs, but they typically involve significant material costs, long build times, and a high level of technical complexity.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/AR4.png}
+    \caption{The AR4 open-source 6DOF robotic arm\cite{AR4}}
+    \label{fig:ar4}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Images/Moveo.png}
+    \caption{BCN3D Moveo open-source robotic arm}
+    \label{fig:moveo}
+\end{figure}
+
+\newpage
+% This project aims to showcase the use of open-source technologies by exploring the design of a low-cost, open-source 6DOF robotic arm intended for simple assembly and manipulation tasks.
+
+This thesis presents the design process of a low-cost six-degree-of-freedom robotic arm intended for simple assembly and manipulation tasks that showcase the implementation of open-source technologies.
 
 
-\subsection{Główne założenia projektu}
-Wykonany w technologii druku 3D, modularny, przy użyciu technologii open source, umożliwia wykonywanie zadań konstrukcyjnych
+
+\section{Main goals of the project}
+The primary objective of the project was to create a easy to use robotic arm suitable for basic assembly tasks, such as soldering or component handling. 
+The project was developed under the following constraints and assumptions:
+
+\begin{enumerate}
+    \item Design and construct a fully functional robotic arm using open-source tools and technologies.
+    \item Demonstrate creative use of 3D printing technology for prototyping custom parts.
+    \item Showcase the versatility of a project developed using ROS2.
+    \item Utilize ROS2 tools for motion control and inverse kinematics computation.
+\end{enumerate}
+
 
 %---------------------------------------------------------------------------
 
-\section{Zawartość pracy}
-\label{sec:zawartoscPracy}
+\section{Structure of the Thesis}
 
-W rozdziale~\ref{cha:podstawyTeoretyczne} przedstawiono podstawowe informacje na temat technologii użytych w projekcie.
+Chapter~\ref{cha:podstawyTeoretyczne} presents the theoretical background and the key technologies used in the project.
 
-W rozdziale~\ref{cha:mechanika} opisano przebieg projektowania konstrukcji robota, oraz rozwiązań z dziedziny mechaniki.
+Chapter~\ref{cha:mechanika} describes the mechanical design of the robot, including the development process and final construction.
 
-W rozdziale~\ref{cha:elektronika} przedstawiono schematy elektroniczne robota.
+Chapter~\ref{cha:elektronika} discusses the electronic hardware of the system and presents the schematics used in the project.
 
-W rozdziale~\ref{cha:oprogramowanie} pokazane zostały rozwiązania oprogramowania robota.
+Chapter~\ref{cha:oprogramowanie} outlines the software architecture and the implementation of control algorithms.
 
-W rozdziale~\ref{cha:testy} przedstawiono testy oraz analiza działania robota.
-
-
-% Jeszcze kilka odnośników do bibliografii \cite{PeDa04,BuDo03}.
+Chapter~\ref{cha:testy} presents the tests performed on the robot as well as an analysis of its performance.

@@ -1,65 +1,380 @@
-\chapter{Kontstrukcja robota}
+\chapter{Mechanical design of the robot}
 \label{cha:mechanika}
+Mechanical design is a crucial part of any robotic system. It must account for the forces acting on the structure and be designed within the geometrical constraints. The design should balance performance with the cost of materials and the difficulty of manufacturing custom parts. An effective mechanical design also allows for easy assembly, maintenance, and future modifications, which is particularly important in prototype and research-oriented robots.
 
-\section{Robot sześcioosiowy}
-czym jest, dlazcego taki został zastosowany, schemat, przestrzeń robocza, 
+\section{Kinematic Structure and DOF Selection}
+One of the first steps in the mechanical design process is selecting an appropriate kinematic structure for the intended application. That involves analyzing future workspace of the robot, types of operations it should be capable of performing,and the relative importance of factors such as speed, accuracy, and flexibility. 
 
-\section{Druk 3D}
-Dynamiczny rozwój technologii druku 3D w ostatnich latach umożliwia na wytwarzanie prototypowych części o wysokiej dokładności i złożoności w krótkim czasiem, jednocześnie niskim nakładem finansowym. Drukarki takie jak Bambu Lab A1 oferują bardzo wysoką dokładność oraz prędkość druku, automatyczną kalibrację oraz poziomowanie stołu a nawet zmianę filamentu przy użyciu dodatkowej stacji AMS, mieszcząc się w koszcie 1400zł. Tej drukarki użyłem w swoim projekcie. 
-Części mechaniczne robota zostały wykonane głównie w technologii FDM (angl. Fused Deposition Modeling). Metoda ta poswala na szybkie i tanie prototypowanie, a także na stworzenie geometrii niemożliwej do wykonania w innych sposobach wytwarzania (np. obróbce CNC).  
-Obecnie dostępny jest bardzo szeroki wybór rodzajów filamentów, z których najpopularniejsze to:
+The goal of this project is to develop a highly versatile robotic arm that can be adapted to a wide range of tasks rather than being optimized for a single application. This requirement strongly influences both the kinematic structure and the number of degrees of freedom of the robot.
 
-\begin{itemize}
- \item  PLA czyli  polilaktyd (ang. polylactic acid), łatwy w druku oraz tani, ale nie wykazuje dużej wytrzymałości oraz ma bardzo słabą odporność termiczną. 
- 
- \item  ABS czyli akrylonitryl-butadien-styren (angl. Acrylonitrile butadiene styrene) mniej popularny od PLA oraz o wiele mocniejszy, ale trudniejszy w druku przez konieczność stosowania wyższej temperatury oraz używania komory do odprowadzania toksycznych oparów. 
- 
- \item PETG  (angl. Polyethylene Terephthalate Glycol) czyli zmodyikowany PET znajdujący się w butelkach. Filament jest tworzony z recyklingowanych butelek, co sprawia, że używanie go jest dodatkowo przyjazne dla środowiska. Łączy zalety ABS oraz PLA. Jest łatwiejszy w druku od ABS, a jednocześnie oferuje zwiększoną wytrzymałość od PLA.
- \item TPU (Thermoplastic Polyurethane), czyli elastyczny filament 
- \item Nylon lub inaczej PA (angl. Polyamide),
- \item PC (angl. Polycarbonate) czyli jeden z najmocniejszych filamentów, odpornych na uszkodzenia mechaniczne oraz termiczne, jednak trudny w druku i wymagający dokładnych ustawień oraz komory.
-\end{itemize}
+\subsection{Degrees of freedom }
+Robots movements are constrained by it's number of degrees of freedom (DOF). A robot arm with four degrees of freedom provides limited movability and is restricted to simple tasks where the position of tool center point (TCP) needs to be controlled, while the orientation is fixed. In contrast, a six-degree-of-freedom manipulator allows for full control of both position and orientation of the TCP in three-dimentional space.
+
+Increasing the number of degrees of freedom introduces kinematic redundancy. While it gives the advantage in situations when it is required for the arm to avoid obstacles, it also increases mechanical complexity and computation of inverse kinematics is more demanding and requires using numerical methods.
+
+For the purposes of this project, redundancy is not a strict requirement. A six-degree-of-freedom configuration provides sufficient dexterity and full control of the TCP while maintaining a reasonable balance between mechanical complexity, control effort, and versatility. Therefore, a 6DOF architecture was selected as the most suitable solution.
+
+% \subsection{Common 6DOF Mechanical Architectures}
+
+% After deciding to implement six degrees of freedom, the next step was to select an appropriate mechanical layout. Several 6DOF manipulator architectures are commonly used in industrial and research applications, each with its own advantages and limitations.
+
+% A widely used solution is a serial kinematic chain, in which all joints are arranged sequentially. This configuration is mechanically simple and conceptually easy to design and model. However, one of the main challenges of a serial 6DOF robot is balancing actuator power against actuator mass. The second joint, typically corresponding to the shoulder pitch axis, is usually subjected to the highest torque, as it must support the weight of all subsequent links and actuators.
+
+% To reduce the torque load on this joint, an offset shoulder design is often employed, where the actuator of the third joint is placed closer to the base, for example behind the first joint. This reduces the effective moment arm of the motor mass and improves the overall dynamic performance of the arm.
+
+% Based on these considerations, a serial kinematic chain with an offset shoulder configuration was selected for this project, as it offers a good compromise between mechanical simplicity, load distribution, and achievable workspace.
+
+\subsection{Final Selected Layout}
+
+The final mechanical layout of the robot is based on an anthropomorphic structure, consisting of a shoulder, elbow, and wrist assembly. The orientation of the joint axes and the placement of actuators were chosen to achieve a balance between mechanical complexity, achievable dexterity, and ease of manufacturing.
+
+% Example:
+%   \nvar{\varx}{2cm}
+\newcommand{\nvar}[2]{%
+    \newlength{#1}
+    \setlength{#1}{#2}
+}
+
+% Define a few constants for drawing
+\nvar{\dg}{0.3cm}
+\def\dw{0.25}\def\dh{0.5}
+\nvar{\ddx}{1.5cm}
+
+% Define commands for links, joints and such
+\def\link{\draw [double distance=1.5mm, very thick] (0,0)--}
+\def\joint{%
+    \filldraw [fill=white] (0,0) circle (5pt);
+    \fill[black] circle (2pt);
+}
+\def\grip{%
+    \draw[ultra thick](0cm,\dg)--(0cm,-\dg);
+    \fill (0cm, 0.5\dg)+(0cm,1.5pt) -- +(0.6\dg,0cm) -- +(0pt,-1.5pt);
+    \fill (0cm, -0.5\dg)+(0cm,1.5pt) -- +(0.6\dg,0cm) -- +(0pt,-1.5pt);
+}
+\def\robotbase{%
+    \draw[rounded corners=8pt] (-\dw,-\dh)-- (-\dw, 0) --
+        (0,\dh)--(\dw,0)--(\dw,-\dh);
+    \draw (-0.5,-\dh)-- (0.5,-\dh);
+    \fill[pattern=north east lines] (-0.5,-1) rectangle (0.5,-\dh);
+}
+
+% Draw an angle annotation
+% Input:
+%   #1 Angle
+%   #2 Label
+% Example:
+%   \angann{30}{$\theta_1$}
+% \newcommand{\angann}[2]{%
+%     \begin{scope}[red]
+%     \draw [dashed, red] (0,0) -- (1.2\ddx,0pt);
+%     \draw [->, shorten >=3.5pt] (\ddx,0pt) arc (0:#1:\ddx);
+%     % Unfortunately automatic node placement on an arc is not supported yet.
+%     % We therefore have to compute an appropriate coordinate ourselves.
+%     \node at (#1/2-2:\ddx+8pt) {#2};
+%     \end{scope}
+% }
+
+% Draw line annotation
+% Input:
+%   #1 Line offset (optional)
+%   #2 Line angle
+%   #3 Line length
+%   #5 Line label
+% Example:
+%   \lineann[1]{30}{2}{$L_1$}
+\newcommand{\lineann}[4][0.5]{%
+    \begin{scope}[rotate=#2, blue,inner sep=2pt]
+        \draw[dashed, blue!40] (0,0) -- +(0,#1)
+            node [coordinate, near end] (a) {};
+        \draw[dashed, blue!40] (#3,0) -- +(0,#1)
+            node [coordinate, near end] (b) {};
+        \draw[|<->|] (a) -- node[fill=white] {#4} (b);
+    \end{scope}
+}
+
+% Define the kinematic parameters of the three link manipulator.
+\def\thetaone{30}
+\def\Lone{2}
+\def\thetatwo{30}
+\def\Ltwo{2}
+\def\thetathree{30}
+\def\Lthree{1}
+
+\begin{tikzpicture}
+    \robotbase
+    \angann{\thetaone}{$\theta_1$}
+    \lineann[0.7]{\thetaone}{\Lone}{$L_1$}
+    \link(\thetaone:\Lone);
+    \joint
+    \begin{scope}[shift=(\thetaone:\Lone), rotate=\thetaone]
+        \angann{\thetatwo}{$\theta_2$}
+        \lineann[-1.5]{\thetatwo}{\Ltwo}{$L_2$}
+        \link(\thetatwo:\Ltwo);
+        \joint
+        \begin{scope}[shift=(\thetatwo:\Ltwo), rotate=\thetatwo]
+            \angann{\thetathree}{$\theta_3$}
+            \lineann[0.7]{\thetathree}{\Lthree}{$L_3$}
+            \draw [dashed, red,rotate=\thetathree] (0,0) -- (1.2\ddx,0pt);
+            \link(\thetathree:\Lthree);
+            \joint
+            \begin{scope}[shift=(\thetathree:\Lthree), rotate=\thetathree]
+                \grip
+            \end{scope}
+        \end{scope}
+    \end{scope}
+\end{tikzpicture}
+
+% Define link lengths
+\def\Lone{2}
+\def\Ltwo{2}
+\def\Lthree{1}
+\def\Lfour{0.6}
+\def\Lfive{0.4}
+
+\begin{tikzpicture}
+
+    % Base
+    \robotbase
+
+    % Joint 1
+    \joint
+
+    % Link 1
+    \link(0:\Lone);
+    \begin{scope}[shift=(0:\Lone)]
+        \joint
+
+        % Link 2
+        \link(0:\Ltwo);
+        \begin{scope}[shift=(0:\Ltwo)]
+            \joint
+
+            % Link 3
+            \link(0:\Lthree);
+            \begin{scope}[shift=(0:\Lthree)]
+                \joint
+
+                % Wrist joint 1 (J4)
+                \link(0:\Lfour);
+                \begin{scope}[shift=(0:\Lfour)]
+                    \joint
+
+                    % Wrist joint 2 (J5)
+                    \link(0:\Lfive);
+                    \begin{scope}[shift=(0:\Lfive)]
+                        \joint
+
+                        % Wrist joint 3 (J6) + gripper
+                        \grip
+                    \end{scope}
+                \end{scope}
+            \end{scope}
+        \end{scope}
+    \end{scope}
+
+\end{tikzpicture}
+
+
+\section{Actuator Selection and Torque Calculations}
+The selection of the joint motors was based on availability, price, and dificulty to control.
+
+For arm joints (joints 2 to 4) the motors of choice were servomotors Feetech FT5325M, capable of generating up to 25\,kg$\cdot$cm when powered at 7.4V.
+
+
+The most critical joint from a torque perspective is the second joint (shoulder pitch). It needs to provide enough torque to lift the whole arm when it is in an extended position and have enough torque left to lift the held object. Even when the mass of the moved object is small, the length of the lever arm significantly increases the required torque. Therefore,the second arm motor used in the project was a higher-torque Feetech FI7635M that operates on the same voltage as the rest of the servomotors but can generate 35\,kg$\cdot$cm  of torque.
+
+The first joint, responsible for base rotation, is actuated using a stepper motor. In this case, the torque requirements are related to the rotational inertia of the structure and the desired angular acceleration rather than gravitational loading. As a result, torque requirements for this joint are less restrictive compared to the shoulder and elbow joints. In addition, the axis is connected to the stepper motor shaft using 2GT belt and gears. If in the testing phase the stepper motor is lacking torque, the gear to gear ratio can be changed by increasing the number of teeth on the joint shaft gear. Another way of increasing torque is to limit the acceleration of the first joint.
+
+
+The wrist joints (joints 5 and 6) are subjected to relatively low loads, as they only support the end effector and do not contribute significantly to lifting the arm. Therefore, micro servomotors Tower Pro MG-90S  were used for these joints, as their torque capabilities of 2,2 kg*cm are sufficient for the expected operating conditions.
+
+
+\begin{table}[h]
+    \centering
+    \caption{Estimated minimum torque requirements for selected joints}
+    \label{tab:torques}
+    \begin{tabular}{|p{4cm}|p{5cm}|}
+        \hline
+        \textbf{Joint} & \textbf{Minimum torque required [kg$\cdot$cm]} \\
+        \hline
+        Joint 2 (Shoulder) & 10 \\
+        \hline
+        Joint 3 (Elbow) & 10 \\
+        \hline
+        Joint 4 (Wrist pitch) & 10 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The selected actuators provide a sufficient safety margin over the estimated minimum torque requirements, even in the worst-case configuration when the arm is fully extended. This margin compensates for modeling inaccuracies, dynamic effects, and additional loads.
+
+\section{Material Selection and Manufacturing Methods}
+3D printing technology has greatly improved in recent years and became an essential skill for modern engineers. It allows for prototyping parts in a short amount of time with good accuracy, and the cost of manufacturing parts is very low. This makes it perfect for the iterative design process of robotic systems.
+
+\subsection{Manufacturing Approach}
+Most common method of 3D printing is Fused Deposition Modeling (FDM). This method is easy to work with, low-cost, fast, and it allows for creating geometries impossible to manufacture using different methods like CNC machining. For the first iteration of the robot all mechanical parts were manufactured using FDM technology.
+One of the parts printed for the robot was a GT2 pulley, if the accuracy of the FDM turned out to be insufficient, the pulley could be reprinted using Stereolithography (SLA). It uses resin as the print material, and can achieve layer heights as small as 0.025\,mm, resulting in improved surface finish and dimensional precision. 
+
+\subsection{Material Comparison}
+The filament used in FDM can be manufactured to have specific mechanical properties. It is crucial to choose the right filament type suitable for the project. Table~\ref{tab:filament_comparison} presents a comparison of commonly used FDM materials based on data summarized in an ALL3DP article~\cite{filaments}.
+
+\begin{table}[h!]
+    \centering
+    \caption{Comparison of selected FDM filaments}
+    \label{tab:filament_comparison}
+    \begin{tabular}{|p{2cm}|p{6cm}|p{6cm}|}
+        \hline
+        \textbf{Material} & \textbf{Advantages} & \textbf{Disadvantages} \\
+        \hline
+        PLA & 
+        Very easy to print, and thus great for prototyping; low warping; good dimensional accuracy; low cost. &
+        Low temperature resistance; relatively low impact strength; not suitable for functional, load-bearing parts. \\
+        \hline
+        ABS &
+        Higher mechanical strength than PLA; good impact resistance; moderate thermal resistance. &
+        Difficult to print (warping, necessery to print in chamber because of fumes); lower dimensional accuracy than PLA. \\
+        \hline
+        PETG &
+        Good balance of strength and printability; higher temperature resistance than PLA; minimal warping. &
+        Slightly less rigid than PLA (problematic in robotics); lower impact resistance than ABS. \\
+        \hline
+        TPU &
+        Flexible and elastic; great impact absorption; highly durable. &
+        Difficult to print; not suitable for rigid structural components. \\
+        \hline
+        Nylon (PA) &
+        Very strong and wear-resistant; excellent impact toughness; good thermal resistance. &
+        High moisture absorption; warping risk; requires high printing temperature. \\
+        \hline
+        PC (Polycarbonate) &
+        Extremely strong and heat-resistant; suitable for heavy-duty functional parts. &
+        Very difficult to print - very high printing temperature and requires enclosure; demanding to tune and prone to warping. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+\begin{figure}[h!]
+    \caption{Filament types presented by their advantages and disadvantages\cite{filaments}}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Images/filaments.png}
+    % \label{fig:placeholder}
+\end{figure}
+
+\newpage
+
+For the prototyping phase, PLA was the filament of choice because of it's ease of printing, low cost, and great dimentional accuracy. This allowed focusing on robot geometry and adjusting tolerances. In future iterations, the material could be changed with a more durable one such as PETG or ABS.
+
+\subsection{Inserts, tolerances, and mechanical joints}
+Although FDM 3D printing offers good dimensional accuracy, parts must be designed specifically with the limitations of the process in mind. During the design phase, large overhangs were avoided to reduce the need for support structures and to improve surface quality. For components requiring press-fit assembly, a dimensional offset of approximately 0.1\,mm was applied. Achieving reliable fits required several iterations of test prints and gradual adjustment of tolerances.
+
+
+To ensure smooth rotation in joints, the parts are connected with ball bearings. This significantly reduced friction and wear compared to direct plastic-on-plastic contact. The bearings were mounted in the 3D printed parts using a press-fit assembly.
+
+Rigid connections between 3D-printed parts can be achieved using press fits, adhesive bonding, or threaded fasteners. However, press fits alone limit serviceability, while self-tapping screws can damage the printed material over time. To ensure that the project can be assembled and disassembled without damaging the structure, brass threaded inserts were used. Inserts were heat-set into the printed components using a soldering iron, creating durable and reliable threaded connections.
+
+To ensure proper retention of the inserts, the diameter of the printed holes was designed to be slightly smaller than the nominal insert diameter, allowing the surrounding plastic to melt and secure the insert during installation.
+
+
+\subsection{Slicer Settings and Print Orientation}
+An important aspect of FDM manufacturing is the orientation of parts on the print bed, as it directly determines layer direction and therefore influences both mechanical strength and dimensional accuracy. Aligning layers with the expected load paths was a key consideration during slicing.
+
+Print orientation also affects the accuracy of cylindrical features. Holes printed with their axis aligned vertically typically exhibit higher roundness and dimensional precision compared to holes printed horizontally. For this reason, components containing bearing seats were oriented such that these features were printed from the top, even when this required additional support material.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Images/slicer.png}
+    \caption{Positioning a part in slicer}
+    \label{fig:slicer_positioning}
+\end{figure}
+\newpage
+For components containing heat-set brass inserts, additional material was required around the inserts to prevent weakening of the structure. This was achieved by applying local modifiers in the slicer software to increase wall thickness around the insert holes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Images/modifier.png}
+    \caption{Local modifiers in the slicer}
+    \label{fig:slicer_modifier}
+\end{figure}
+
+% should I describe infill?
+
+
+\section{Base (First Joint) Mechanical Construction}
+The design of the robot base posed one of the most significant mechanical challenges of the project. The base serves multiple functions: it houses the electronic components and provides adequate airflow for cooling them, ensures structural rigidity, allows convenient access for maintenance, and simultaneously acts as the first rotational joint of the robotic arm.
+
+\subsection{Structural design}
+To ensure ease of assembly and maintenance, the base was designed as a two-part structure connected using bolts and heat-set brass inserts. This modular approach allows the base to be opened repeatedly without damaging the printed material and enables easy use of the robot arm in a different configuration.
+
+The lower part of the base serves as a structural foundation and can be rigidly mounted to a wooden or metal support plate. This improves overall stability and reduces vibrations during operation. The upper part of the base integrates the rotating elements of the first joint and supports the arm structure. 
+
+
+\subsection{Electronics Integration} 
+The lower section of the base contains a dedicated electronics mounting platform, conceptually similar to a computer motherboard tray. The custom control board and DC-DC buck converter are mounted using brass inserts to ensure mechanical stability and electrical insulation.
+
+Electronic components such as the stepper motor driver and power converters generate heat during operation, which can negatively affect performance and reliability. To avoid this, forced airflow was implemented using a 12\,V DC fan mounted at the front of the base. Ventilation openings at the rear allow air to flow through the entire enclosure, effectively reducing the temperature inside.
 
 \\
+(zdjęcie części dolnej z cada oraz rzeczywiste)
+\\
+ 
+
+\subsection{First Axis Rotation Mechanism}
+The first rotational axis connects the robotic arm to the base and must provide high rigidity while allowing smooth, low-friction motion. To achieve this, the joint was supported by two radial ball bearings, which ensure precise alignment and resistance to bending moments. Additionally, a needle bearing was used to carry axial loads resulting from the weight of the arm, preventing increased friction under vertical loading.
+
+\\(image of the real bearings)\\
+
+The first axis is driven by a stepper motor via a GT2 timing belt transmission. This solution allows for flexible torque adjustment through pulley ratio selection and isolates the motor from axial loads.
+
+Additionally such design allowed for the implementation of a hollow rotating shaft. This enables routing of power and signal cables through the joint using a slip ring, eliminating cable twisting and allowing unlimited rotation of the base.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{image.png}
+    \caption{Cross-sectional view of the first axis assembly}
+    \label{fig:first_axis_cross_section}
+\end{figure}
+
+
+\section{Arm Structure}
+Using stepper motors in joints requires the implementation of external gear system to increase torque. This increases mechanical complexity, mass, and manufacturing effort, particularly when custom gears must be fabricated. To avoid this and reduce the mass of the arm, joints two through six were designed around standard-sized servomotors. These actuators incorporate an internal gear system that allows them to deliver high torque while remaining relatively small and lightweight. This approach simplified the mechanical design and reduced the number of custom components.
+
+\subsection{Shoulder and Elbow Joint (second and third axis)}
+
+\subsection{Wrist (Ases 4-6)}
+This is important and deserves a subchapter:
+
+
+\subsection{Cable Management Strategy}
+To hide cables that power and control the motors inside the arm, the arm structure was designed with a tunnel that goes through the whole length, and between the parts the cables run through the inside of the ball bearing.
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{Images/filaments.png}
-    \caption{https://all3dp.com/1/3d-printer-filament-types-3d-printing-3d-filament/}
+    \includegraphics[width=0.8\linewidth]{Images/Arm2.png}
+    \caption{Ramię 2}
     \label{fig:placeholder}
 \end{figure}
 
-W procesie prototypowania aby skupić się na konstrukcji oraz poprawnych wymairach zastosowano PLA, przez co proces drukowania odbywał się bez problemów i efekty były bardzo zadowalające. 
-W ostatecznej wersji planowana jest zmiana filamentu na bardziej odporny mechanicznie np. PETG lub ABS. 
-
-Dokładne dopasowanie części tak, aby wchodziły na wcisk wymagało kilku iteracji testów konstrukcji. 
- 
-
-\section{Pierwsza oś}
-Do ruchu pierwszej osi zastosowano silnik krokowy, który połączony jest z pierwszą osią za pomocą pasa transmisyjnego. Pozwala to na ewentualną zmianę przełożenia, oraz izoluje silnik od reszty konstrukcji.
-
-Pierwsza oś montowana jest do podstawy za pomocą dwóch łożysk obrotowych co zapewnia sztywność, oraz łożyska igiełkowego oporowego zapewniającego dobry ślizg.
-
-Aby zapobiec plątaniu się przewodów przy wielu obrotach zastosowano slip ring. 
-
-\section{Kolejne osie}
-Reszta osi jest poruszana przy pomocy serwomechanizmów o momencie siły 35kg*cm.
-
-Największą obawą przy projektowaniu ramienia sześcioosiowego była druga oś, odpowiadająca za podnoszenie całego ramienia. Przez swoje długie ramię moment siły wywierany na serwomechanizm może być bardzo duży, i podnoszenie nawet małych ciężarów na pełnym wyciągnięciu mogłoby być wymagające. Jednak po wstępnym przeliczeniu momentów sił wywieranych przez poszczególne serwonapędy (największa masa ramienia) oraz wykonaniu i zważeniu wydruków 35kg*cm powinno zapewnić wystarczająco dużo siły. Jednak na wszelki wypadek ramię pierwsze zaprojektowano z możliwością dodania jeszcze jednego serwomechanizmu, co w efekcie podwoiłoby wywierany na pierwszą oś moment siły. 
-
-Aby ukryć przewody w projekcie, zaprojektowano specjalne przejścia, a pomiędzy częściami przewody przechodzą przez łożyska.
-
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{Images/Arm2.png}
+    \includegraphics[width=0.5\linewidth]{Images/cables_through_bearing.jpg}
     \caption{Enter Caption}
     \label{fig:placeholder}
 \end{figure}
 
+\section{End Effector (Wrist + Tools)}
+Do obsługi ostatnich dwóch osi użyto lekkich serwomechanizmów małej mocy. Została ona zaprojektowana z myślą o łatwym dołączaniu różnego rodzaju narzędzi.
 
-\section{Kiść}
-Do obsługi ostatnich dwóch osi użyto małych serwomechnaizmów małęj mocy.
+To move last two joints in the arm .
 
-\\
-testy momentu siły pojedynczego serwa, oraz momentu siły złożonego robota.
+\subsection{TCP Reference Tool}
+ W pierwszych testach zaprojektowano prosty element reprezentujący osie x, y oraz z. Ma on na celu wizualizację położenia TCP (tool center point).\\
+
+\\(zdjęcie końcówki)\\
 
 
+\section{Assembly, Tolerances, and Iteration Process}
+How many iterations
+
+\section{Summary of Mechanical Design}
+CAD, real photos of final project

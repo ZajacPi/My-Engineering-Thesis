@@ -1,9 +1,25 @@
-\documentclass[12pt]{aghdpl}
-% \documentclass[language=en,11pt]{aghdpl}  % praca w języku angielskim
+\documentclass[language=en, 11pt]{aghdpl}  % praca w języku angielskim
+
+% \usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+\usepackage{robotarm} % or kinematikz
+\usepackage[hidelinks, pdftitle={Industrial Robotic Arm Supporting Assembly Tasks}, pdfauthor = {P.Zając}]{hyperref}
+
+\usepackage[
+    backend=biber,
+    style=numeric,     
+    sorting=ynt
+]{biblatex}
+
+\addbibresource{bibliography.bib}  
+\ExecuteBibliographyOptions{labelnumber=true}
 
 %---------------------------------------------------------------------------
 % hyperref dodaje odnośniki wewnętrz dokumentu (np. spis treści jest już klikalny, dotyczy również odwołań, obrazków, cytowań, równań itp.). Pozostałe opcje powodują brak widoczności linków oraz zmieniają właściwości pliku pdf. Szczegóły: https://www.overleaf.com/learn/latex/Hyperlinks
-\usepackage[hidelinks, pdftitle={Ramię robota przemysłowego wspomagającego zadania montażowe}, pdfauthor = {P.Zając}]{hyperref}
+
 
 %%%%%%
 
@@ -11,8 +27,8 @@
 \shortauthor{P. Zając}
 
 
-\titlePL{Ramię robota przemysłowego wspomagającego zadania montażowe}
 \titleEN{Industrial Robotic Arm Supporting Assembly Tasks}
+\titlePL{Ramię robota przemysłowego wspomagającego zadania montażowe}
 
 
 \shorttitlePL{Ramię robota przemysłowego wspomagającego zadania montażowe} % skrócona wersja tytułu jeśli jest bardzo długi
@@ -43,6 +59,7 @@
 
 \acknowledgements{Serdecznie dziękuję XYZ\dots }
 
+\ExecuteBibliographyOptions{labelnumber=true}
 
 \begin{document}
 

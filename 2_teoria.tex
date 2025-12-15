@@ -1,28 +1,98 @@
-\chapter{Podstawy Teoretyczne}
+\chapter{Theoretical Background}
 \label{cha:podstawyTeoretyczne}
+This chapter aims to give the basic theoretical background for the tools used during the development of the robot arm.
 
 
+% \section{Open-source tools}
+% One of the goals of the thesis was to showcase the potential of open-source tools. On every step of the develpoment they were crucial, here are 
 
-\section{Aspekty prawne i bezpieczeństwo robotów wykonawczych}
-\label{sec:kompilacja}
-- technologia open-source
-Projektu nie udałoby się wykonać, gdyby nie bezinteresowna praca wielu ludzi działających w projektach open source. 
-
-- Normy bezpieczeństwa (np. ISO 10218).  
-- Zagrożenia przy pracy robotów z ludźmi.  
-- Odpowiedzialność prawna. 
-
-
-\section{Sterowanie i algorytmy w robotyce}
-\label{sec:narzedzia}
-
-- Kinematyka prosta i odwrotna.  
-- Sterowanie w przestrzeni współrzędnych.  
-- Podstawy ROS2.  
-
-\section{ROS2}
-Opisać ROS2 dlaczego go wziąłem, co umożliwia. 
-ROS2, czyli Robot Operating System to zestaw bibliotek oraz narzędzi znacznie ułatwiajacych pracę z projektami robotów. 
+% \begin{itemize}
+%     \item Orca Slicer -  an open-source slicer for 3D prints. Slicer is a tool used to generate g-code for a 3D printer from model files. It allows to modify parts before printing, and set properties of the rpint like infill density, pattern or number of walls. Orca slicer is a project derived from Bambu Lab slicer, which is open-source.
+%     \item Linux Ubuntu Operating System - free to use Linux distribution, in the project it was set up on a external SSD disc, connected to a laptop with a USB 3.10 port. 
+%     \item ROS2 - 
+%     \item Micro-Ros
+%     \item Arduino IDE
+% \end{itemize}
 
 
+% \section{Safety principles}
+% \label{sec:kompilacja}
 
+% - Normy bezpieczeństwa (np. ISO 10218).  
+% - Zagrożenia przy pracy robotów z ludźmi.  
+% - Odpowiedzialność prawna. 
+
+
+\section{ROS2 Framework}
+% motivation and role in robotics
+ROS \cite{doi:10.1126/scirobotics.abm6074}- Robot Operating System is an open-source Framework. It was designed to simplify the development of complex robotic systems by introducing modularity and dividing the project into a collection of independent components that communicate through standardized interfaces.This approach made the software easy to reuse and allows for rapid prototyping. In addition, ROS provides a rich ecosystem of tools that support visualization, simulation, motion planning, and system integration.
+
+\subsection{ROS1 vs ROS2}
+ROS was first released in 2007 and quickly became a standard in robotics. Supported and constantly developed by communities around the world, it grew and evolved to finally become its successor: ROS2. 
+While ROS2 is a continuation of the ROS1 project, it introduced changes at a fundamental level after the limitations of ROS1 became apparent, particularly in real-time performance, reliability, and multi-platform support. Instead of updating ROS1, ROS2 was developed as a new framework that addressed these problems.
+
+As described in the article published on the ROS2 Design website \cite{ROSvsROS2}, 
+ROS2 introduced architectural changes that significantly improved system robustness and flexibility. One of the most important differences is the use of a Data Distribution Service (DDS) middleware for communication, which enables decentralised, scalable, and configurable data exchange. Additionally, while ROS1 worked mainly with C++03 and targeted python 2, ROS2 adopted modern programming standards, including C++11 and Python version 3. Finally, it provides improved support for real-time systems and embedded platforms.
+ % One of the key features are the roslaunch files, in ROS2 they are not used anymore, and launch files are written in python and use complex logic. Instead of using catkin_simple package ROS2 is using Cmake API. 
+ 
+Because of these changes, ROS2 was chosen as the framework for the project.
+
+Due to differences between the frameworks, packages, and libraries from ROS1 are not always compatible with ROS2. Therefore, it is important to check the version of tools when creating a system using ROS. 
+
+\subsection{Basics of ROS}
+
+\subsection{Nodes}
+ROS systems consist of independent processes called nodes. Each node should be responsible for a specific task within the system. It can act as a publisher, a subscriber, or both. As an example, a publisher node responsible for data acquisition from a sensor can send messages, and a subscriber node can receive the data and use it for it's own process. The biggest advantage of this approach is that nodes are independent and can be used in a different setting. This allows for experimentation and reusability of ROS projects. 
+A ROS executable can consist of one or more nodes that work simultaneously. The programmes can be written in C++ or Python, which allows the use of any library not connected to ROS.
+
+\subsection{Communication interfaces}
+Nodes communicate with each other using standardized communication interfaces, including topics, services, and actions. 
+Topics \cite{topics} are the most common form of communication between nodes. They enable asynchronous data exchange in a publisher-subscriber model and are used for continuous data streams, such as joint states or sensor measurements. 
+Services contrary to topics do not work continuously, but provide a synchronous call-response mechanism and are suitable for short, discrete operations. 
+Actions extend the service concept by supporting long-running tasks that provide feedback and can be preempted, making them particularly useful for motion execution and trajectory control.
+
+The nodes send data between each other using messages. Message types can be created manually, or looked up in the standardised message types \cite{common_interfaces}.
+
+\section{URDF and SRDF}
+The Unified Robot Description Format (URDF) \cite{URDF} is an XML-based format used by ROS tools to describe the physical structure of a robot. A URDF defines the robot as a collection of rigid links connected by joints, specifying their spatial relationships and kinematic structure. Using the XML specification \cite{URDF_XML}, a URDF file can describe joint types, joint limits, link geometries, collision models, and inertial properties. URDF files are used in ROS tools for visualisation and simulation.
+
+The Semantic Robot Description File (SRDF)\cite{SRDF} is derived from URDF. It adds the semantic information required for advanced motion planning by organising links into planning groups, defining end-effectors, and creating predefined poses. Additionally, it disables collision pairs to avoid accidental collision detection. It is essential for motion planning frameworks, as it defines how the robot should be interpreted and controlled, in contrast to URDF, which describes physical construction.
+
+
+\section{Large Community Projects: RViz, MoveIt, Micro-ROS}
+One of the main reasons why ROS was chosen for the project is the availability of advanced tools that help programming, debugging and testing a robot.  These tools are developed and maintained by people all over the globe, by various organizations \cite{organisations}.
+
+\subsection{RViz}
+RViz \cite{RViz_docs} is a package that visualises URDF of a robot in 3D space . It can be used to easily inspect and debug the robot joint transforms, link geometry, and collision boxes. The RViz environment is interactive, allowing the joints to be tested, which makes it particularly useful during the development and validation of the robot description.
+
+In this project, RViz was used to verify the kinematic structure, joint orientations, and motion limits, but primarily to visualise planned trajectories generated by motion planning tools, and set desired positions of the robot in the graphical interface.
+% Mabye a screenshot to show how the gui looks like???
+
+\subsection{MoveIt}
+MoveIt \cite{moveit_project} is a framework for motion planning, manipulation, and kinematics. It provides tools for solving inverse kinematics, planning collision-free trajectories, and executing motions on robotic manipulators based on the SRDF file of a robot. Combined with RViz it can also be used for pick-and-place tasks, where it takes into account objects placed into the scene in RViz.
+
+The framework can be used manually through RViz, or be controlled with C++ and Python APIs, which makes integration into robotic applications seamless. MoveIt significantly simplifies motion planning by abstracting complex kinematic computations and providing reliable planning algorithms, and it can even be used with redundant robot arms.
+\begin{figure} [h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/moveit.png}
+    \caption{Franka Emika Panda robot in RViz operated using MoveIt}
+    \label{fig:placeholder}
+\end{figure}
+Additionally, MoveIt supports a Setup Assistant - a tool that helps creating a functional SRDF based on a URDF.
+
+In this project, MoveIt was used to create SRDF of the robot, compute inverse kinematics solutions and generate motion trajectories for the robotic arm.
+
+% Mabye write a little more about OMPL and CHOMP
+\newpage
+\subsection{Micro-ROS}
+Micro-ROS \cite{microros_website} extends the ROS ecosystem to microcontrollers, by making the microcontroller act as a node. It enables communication with the rest of the ROS project through a serial or wireless connection, using standard ROS interfaces.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/uros_architecture.png}
+    \caption{Micro-ROS architecture \cite{microros_website}}
+    \label{fig:placeholder}
+\end{figure}
+
+
+This approach allows low-level hardware control, such as controlling servomotors and sensor data acquisition, to be implemented on microcontrollers while higher-level planning and control algorithms are running on a host computer. In the presented system, Micro-ROS provides a bridge between the robotic arm’s embedded electronics and the ROS2-based control architecture.

@@ -1,41 +1,243 @@
-\chapter{Oprogramowanie systemu}
+\chapter{Programming the Robot with ROS2}
 \label{cha:oprogramowanie}
+Using ROS2 in a project may take a longer time to set up and configure, but it has the advantage of a wide variety of ready to use tools that make the project easier in the long run.
+ROS2 is an open source project and is still actively developed and changing, so choosing the right distribution should be considered at the beginning of the project to ensure access to the latest versions of tools. 
 
-\section{System operacyjny i środowisko}
-- Czym jest ROS2 i dlaczego został wybrany
-- Czym jest microros
-- Instalacja ROS2 Jazzy Jalisco i konfiguracja.  
+\section{ROS2 Environment}
+ROS2 can run on a variety of Linux operating systems and even on Windows; however, it was developed with Linux Ubuntu in mind, and this operating system is recommended by the developers, so it was chosen for the project. 
+Since it's release, a lot of ROS2 distributions have been created. I decided to use ROS2 Humble Hawksbill, not the latest LTS distro - that is Jazzy Jalisko, but Humble has been around for some time and I knew that I will find a lot of solutions for it on the internet. This distribution works on Ubuntu 22.04.
+After setting up the operating system on a external SSD, I followed the instructions of setting up a ROS2 environment. 
+(documentation) 
+I tested the environment by running a turtlesim demo, that showcases the core logic of ROS. 
 
-Raspberry Pi umożliwia uruchomienie środowiska Linux Ubuntu 24.04. Taka wersja linuxa jest potrzebna do uruchomienia ROS.
+\section{Creating URDF}
+Creating URDF file can done manually, but there are tools recommended by the ROS community \cite{creating_URDF} that can create URDF file directly from CAD model like Solidworks URDF exporter, or a plugin to Blender. In my project, because I was already using a Autodesk software for creating CAD models, I decided to use fusion2urdf\cite{fusion2urdf}.
+To use the tool the CAD assembly model should be constructed following the rules included in the README of the repository, and the links named properly: using only small characters without space between them, and the first link has to be named base_link.
+ 
+% Aby otrzymać bodies z części zaprojektowanych w inventorze, copy i paste samo body, a potem usuń plik. 
 
-AKTUALIZACJE
-Przez użycie w projektu microros należało dokonać kilku zmian. MicroROS bardzo słabo działa z wersją JAZZY, należało zmienić distro na humble. Problem był taki, że humble nie działa na wersji ubuntu 24.04, która była pod JAZZY, należało postawić ubuntu 22.04. No ale ta wersja ubuntu nie działa na Raspberry pi 5. Dlatego z projektu usunięto Raspberry pi. 
 
-\section{Sterowanie serwomechanizmami z wykorzystaniem PCA9685}
-\\ opis programowania sterownika I2C przez rejestry\\
+% Paczka jest generowana dla ROS1, dlatego kilka rzeczy trzeba poprawić. Folder z paczką bez spacji i małłymi literami.Dodaj do package.xml:
+%   <depend>xacro</depend>
+%   <depend>urdf</depend>
+%   <depend>rviz</depend>
+%   <depend>joint_state_publisher</depend>
+%   <depend>joint_state_publisher_gui</depend>
+%   <depend>robot_state_publisher</depend>
 
-\section{Sterowanie silnikiem krokowym z wykorzystaniem DRV8825}
+The add on generates a ROS1 package, and should be carefully remade for ROS2. That includes remaking the CMake file so it doesn't use catkin, creating a python launch file and the whole .rviz file. To avoid remaking the whole file manually, I used chat.gpt.
 
-\\Opis sterowania silnikiem krokowym z wykorzystaniem sterownika\\
-\\Bazowanie robota z wykorzystaniem czujnika halla
+The advantage of using the package to generate the URDF file is that it includes STL of the model to it can be used in visualising with ROS, and it calculates moments of inertia.
 
-\section{Umieszczenie całego sterowania na ESP32 z microROS}
+
+
+\section{Visualising the robot with RViz}
+To check if the generated URDF is correct, it could be visualised in RViz. It does not simulate the robot like Gazebo, but it is really useful for controling the state of the robot.
+
+\noindent The following command enables generated file in RViz:
+\begin{lstlisting}[language=bash]
+  $ ros2 launch urdf_package display.launch.py
+\end{lstlisting}
+To check if the joints move correctly, another tool was used:
+joint\_state\_ publisher. It simulates a publisher, that publishes joint states to the topic RViz is subscribed to.
+
+\noindent The following command instals the joint state publisher:
+\begin{lstlisting}[language=bash]
+  $ ros2 launch urdf_package display.launch.py
+\end{lstlisting}
+
+RViz allows the user to visualise transforms of the robot and collision boxes.
+
+screen z rviz i joint state publisher, potem też z transformatami.
+
+\section{MoveIt2 Configuration}
+To prepare the robot for MoveIt...
+
+\subsection{Creating SRDF with MoveIt setup assistant}
+
+After creating an URDF file of the robot, it is necessery to create a SRDF for MoveIt to work. It can be done with an official tool: Moveit Setup Assistant.
+
+\href{https://moveit.picknik.ai/humble/doc/examples/ikfast/ikfast_tutorial.html
+}{https://moveit.picknik.ai/humble/doc/examples/ikfast/ikfast_tutorial.html
+}
+
+\noindent Moveit setup assistant can be launched with the command: 
+
+\begin{lstlisting}[language=bash]
+  $ ros2 launch moveit_setup_assistant setup_assistant.launch.py
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/moveit_setup_assistant.png}
+    \caption{Moveit Setup Assisnant window}
+    \label{fig:placeholder}
+\end{figure}
+
+Opisać co się robi w setup assistant. 
+Wygenerowanie macierzy kolizji
+Virtual Joints
+Stworzenie grup
+End effector
+ROS2_controller
+Moveit2_controller
+
+
+\noindent Po stworzeniu pliku SRDF należy sprawdzić jego poprawność w RViz, przy użyciu komendy: 
+
+\begin{lstlisting}[language=bash]
+  $ ros2 launch srdf2 demo.launch.py
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{SRDF_RViz.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+W trakcie pracy natknąłem się na wiele błędów, przede wszystkim z tworzeniem URDF, a potem srdf przy pomocy narzędzia moveit. Do debugingu przydatne są komendy; 
+
+\begin{lstlisting}[language=bash]
+  $ ros2 control list_controllers
+\end{lstlisting}
+[INFO] [1763114714.374762157] [_ros2cli_7335]: waiting for service /controller_manager/list_controllers to become available...
+joint_state_broadcaster joint_state_broadcaster/JointStateBroadcaster          active
+david_arm_controller    joint_trajectory_controller/JointTrajectoryController  active
+
+
+Należało stworzyć tylko jeden kontroler (do grupy david_arm) a nie dwa, jak automatycznie podpowiada program. W ros_controller należy usunąc wygenerowane dla grupy nadgarstka kontrolery.
+ontroller name: david\_arm\_controller
+Type: FollowJointTrajectory
+Default: ✔
+Joints:
+  - joint1
+  - joint2
+  - joint3
+  - joint4
+  - joint5
+  - joint6
+
+  Nazwy nie mogą mieć spacji.
+  % Teraz lecę na fake hardware, mozna to sprawdzić; 
+
+\begin{lstlisting}[language=bash]
+  $ ros2 control list_hardware_interfaces
+\end{lstlisting}
+
+Okazało się, że publishowałem w złej kolejności jointy, bo srdf czytał sobie stare bliki z folderów build i install, komenda zbawienna: 
+\begin{lstlisting}[language=bash]
+  $ ros2 topic echo /joint_states
+\end{lstlisting}
+Otrzymałem: 
+header: stamp: sec: 1763107724 nanosec: 493116978 frame\_id: base\_link name: - joint2 - joint3 - joint1 - joint4 - joint5 - joint6 position: - 0.9101201539526196 - 1.1755129960850645 - -0.11931624533226025 - 1.5991373681522325 - 0.028240824535017816 - 0.1160348312634558 velocity: - 0.0 - 0.0 - 0.0 - 0.0 - 0.0 - 0.0 effort: - .nan - .nan - .nan - .nan - .nan - .nan ---
+
+Widać tutaj, że kolejność jest zła pomimo poprawnego URDF. Ale sprawdziłem komendę: 
+
+\begin{lstlisting}[language=bash]
+  $ grep -R "joint_states" -n src/<your_moveit_pkg>
+\end{lstlisting}
+
+\subsection{OMPL (Open Motion Planning Library) }
+How moveit calculates trajectory
+
+\section{Hardware interface}
+
+Aby umożliwić sterowanie silnikami, potrzebny jest mikrokontroler pozwalający na precyzyjne generowanie sygnałów. W projekcie zdecydowano się na ESP32, na którym zaimplementowano narzędzie microROS. Pozwala ono na zachowywanie się mikrokontrolera jak node, co wciela go do projektu ROS2. Na komputerze należy uruchomić tzw. microROS-agent, to on komunikuje się z mikrokontrolerem.
+
+\subsection{Controlling servomotors through PCA9685}
+PCA9685 module can be controlled with I2C protocol. On ESP32 any GPIO pin can be used to control I2C. Instead of using a library, I programmed simple API functions using registers. 
+PCA9685 is configured during setup phase. 
+
+
+\subsection{Driving the stepper motor with TMC2209 module}
+In first iteration, a drv8855 module was used, but it was very loud when working. It was later switched to TMC2209 module. The pinout and control is the same so no changes needed to me made.
+
+As oppose to a servomotor, stepper motor does not know it's current position, and can move only relatively an amount of steps. To solve it, the robot follows a homing procedure, where it rotates untill a hall sensor mounted on the base receives a magnetic pulse from a magnet located at the rotating part.
+
+
+\subsection{Creating micro-ROS node on ESP32}
 Cały kod trzeba będzie przerobić na ROS2
+Aby uruchomić microRos należy najpierw na komputerze z linux postawić microros agent. 
 
-\section{MoveIt i RVis}
-RVis jest narzędziem środowiska ROS, pozwalające na pizualizację robota. 
-MoveIt to narzędzie pozwalające na planowanie kinematyki robota. 
+Użyłem arduino IDE żeby zainstalować na esp32 kod micro ros, ale należało zwracać uwagę na spójnośc wersji board managera i biblioteki microrosarduino.\\
+Przykładowo, w przypadku używania ROS2 w wersji Humble, 
+W na początku komunikacja zadziałała, ale dodawanie liczb nie było płynne, dopiero po poprawie wersji biblioteki do wersji ROS2 humble.
 
-\section{URDF - Unified Robot Description Format}
-URDF to plik XML opisujący model robota, składający się z połączeń i ruchomych osi robota. Jest wykorzystywany w ROS w narzędziach pozwalających na wizualizację robota jak rviz czy Gazebo. 
+Do micro_ros_agent w swoim workspace należy pobrać: 
+git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
 
-Plik URDF można wygenerować bezpośrednio z modelu CAD, używając takich programów jak Solidworks. Ja użyłem Fusion 360 i skryptu napisanego przez społeczność dostępnego na github.
+I zbudować projekt. 
+Sprawdzono prosty kod wysyłający wartość zwiększającego się licznika, i odebrano na komputerze komendą: 
+\noindent Komenda uruchamiająca wizualizację całego projektu :
+\begin{lstlisting}[language=bash]
+  $ ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
+\end{lstlisting}
+ I sprawdzić publikowany topic:
+ros2 topic echo /counter
 
-https://github.com/syuntoku14/fusion2urdf
+Następnie stworzono subscriber, który przyjmuje topic z kątem serwomechanizmu, i przetestowano. 
+ros2 topic pub /servo_angle std_msgs/msg/Float32 "{data: 45}"
+Wszystko zadziałało. 
 
-Aby użyć narzędzia należy poprawnie skonstruować model zgodnie z instrukcją w README.
+Testuj tym: 
+ros2 topic pub /esp_joint_states sensor_msgs/msg/JointState \
+"{name: ['joint1','joint2','joint3','joint4','joint5','joint6'], position: [0,0.2,0,0,0,0]}"
+
+\section{Testing Hardware-Software connection}
+
+
+% rqt_graph*
+
+Sprawdzam 
+ros2 topic info /joint_states
+Otrzymuję: 
+Type: sensor_msgs/msg/JointState
+Publisher count: 1
+Subscription count: 2
+
+Screeny z moveit, jakie topiki i message, struktura message, czy trajektoria jest przesyłana
+
+\section{Freedom of controlling the robot: voice control}
+One of the most useful features of ROS is it's flexibility. When a robot is created, it can be controlled by a node that communicates with MoveIt2 API, and the commands can be sent by another node. If the method of controlling the robot changes, only the controlling node has to be changed, and it must send messages in the same format as before. For this project, the robot's TCP position was controlled with voice commands. 
+
+\subsection{C++ API interface for MoveIt2}
+I want to move the TCP: 
+zajac@zajac-Nitro:~/Documents/David/Davie-Robot-Arm/david_ws
+% $ ros2 run tf2_ros tf2_echo base_link tool_1
+% [INFO] [1765277041.977375074] [tf2_echo]: Waiting for transform base_link ->  tool_1: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+% At time 1765277042.910531294
+% - Translation: [-0.000, 0.095, 0.321]
+% - Rotation: in Quaternion (xyzw) [-0.710, -0.000, -0.000, 0.704]
+% - Rotation: in RPY (radian) [-1.579, -0.000, 0.000]
+% - Rotation: in RPY (degree) [-90.453, -0.005, 0.004]
+% - Matrix:
+%   1.000  0.000 -0.000 -0.000
+%   0.000 -0.008  1.000  0.095
+%   0.000 -1.000 -0.008  0.321
+%   0.000  0.000  0.000  1.000
 
 
 
-\section{Rozpoznawanie mowy za pośrednictwem biblioteki whisper AI}
+\subsection{Voice recognition using Vosk library}
+ROS2 nodes can be created in C++ or python, and the languages don't have to be the same between nodes - only the message type.
+To show this feature, I created a Python node that uses a offline voice recognition toolkit: Vosk \cite{VOSK}, that would send messages to the C++ node tha communicates with MoveIt API.
 
+Creating a python publisher is very simple, and only thing to look out for is to correctly send the message to a correct topic.
+
+To communicate between nodes, I used a ready message type called Twist \cite{twist_message}. It consists from two vectors, one defining linear movement in three axes, and the second one the angular movement. 
+
+After testing voice detection and defining commands responsible for movement in a given axis, the publisher was set to publish movement command to a topic.
+
+
+\section{Summary of project software}
+I created a node that does voice recognition, when it detects a command it sends a message containing movement. Another node, command2moveit subscribes to that topic and communicates with the MoveIt model to implement the command into robot movement. Then, a node moveit2microros takes positions from the simulated robot and sends them to the node on ESP32. That node is responsible for hardware interface.
+
+\noindent To visualise the whole project structure, there is a ROS2 command:
+\begin{lstlisting}[language=bash]
+  $ ros2 run tf2_tools view_frames
+\end{lstlisting}
+
+
+\section{Symulacja działania robota w Gazebo}
+Dobrą praktyką jest testowanie oprogramowania robota w symulacji przed wgraniem go na realny sprzęt. Pozwala to zapobiec nieoczekiwanym uszkodzeniom oraz przyspiesza proces testowania, przez możliwość szybkiej modyfikacji otoczenia oraz robota.\\
