@@ -1,7 +1,64 @@
 \chapter{Electrical design of the robot}
 \label{cha:elektronika}
 
-\section{Servomotors and PCA9685 module}
+\section{System Architecture Overview}
+The robotic system was divided into two main functional subsystems: low-level hardware control subsystem and a high-level control and computation subsystem.
+This separation allows time-critical tasks to be handled deterministically, while higher-level planning, visualisation and user interaction are handled independently.
+
+
+A CPU running ROS~2 is responsible for motion planning,
+system supervision, and visualization.
+Low-level actuator control and sensor acquisition are delegated to a dedicated microcontroller operating in real time.
+Figure~\ref{fig:system_architecture} presents a functional overview of the system architecture.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/architecture_diagram.png}
+    \caption{System architecture diagram}
+    \label{fig:system_architecture}
+\end{figure}
+
+The control system is required to generate PWM signals for five servomotors, including three high-torque Feetech servomotors used in the main arm joints and two low-power TowerPro servomotors used in the wrist.
+Additionally, the system must control a stepper motor responsible for the base rotation and read a digital homing signal to establish a reference position at startup.
+All components operate within the ROS~2 ecosystem.
+
+
+\subsection{ESP32 Microcontroller}
+For the low-level hardware control level, ESP32 microcontroller was selected  because of its computational resources, memory capacity, and official support for micro-ROS integration. Additionally, it has a built in Wi-Fi module, allowing for wireless communication in future iterations.
+
+Any GPIO pin in the ESP32 can be set a s a I2C ouput, which in the project is used to control the PWM Driver.Stepper motor controller requires step signal, pin 18 is best for that application.
+
+\subsection{micro-ROS Integration}
+The ESP32 microcontroller is officially supported by the micro-ROS framework\cite{microros_github}. For the project a micro\_ros\_arduino library was used to integrate the ESP32 into the ROS2 ecosystem.
+The version of the tool needs to be excatly chosen for the version of ROS for the project. In the project, Arduine IDE was used to flash the board. For Micr-ROS to work properly, the version of IDE needs to also be adjusted for the ROS version.
+
+The Micro-ROS communicates with the CPU and the rest of the ROS project with a serial connection. 
+
+\section{Actuator Control}
+There are four different actuators in the project: stepper motor for first axis, a 35kg*cm servomotor, two 25kg*cm servomotors that has a different duty cycle range from the 35kg servo, and a micro servo that operates on different voltage level and has different duty cycle range. 
+
+\subsection{Stepper Motor and DRV8825 Driver}
+First axis of the robot is driven by a JK42HS48-1204 stepper motor. It is controlled by a DRV8825 driver. The driver supports microstepping and allows adjustment of the motor current to match the electrical characteristics of the motor.
+
+
+Precise step timing is required for reliable stepper motor operation.
+High-level operating systems do not guarantee real-time behavior, which can lead to irregular step generation and loss of motion accuracy.
+For this reason, stepper motor control was delegated to the ESP32
+microcontroller, which provides deterministic timing.
+
+A custom prototyping board was created for the project to ensure proper wiring of the modules. 
+Stworzono płytkę prototypową w której połączono ESP ze sterownikiem. Sterownik należało nastroić do pracy z 12V tak, żeby pomiędzy potencjometrem a masą było napięcie o wartości dwukrotnie niższej niż natężenie silnika. 
+
+Silnik krokowy wymaga bazowania przy starcie aby zapewnić poprawną orientację robota. Do tego wykorzystano magnes oraz cyfrowy czujnik halla A3144, który na wyjściu daje stan wysoki przy pojawieniu się pola magnetycznego. 
+
+\subsection{Hall Sensor for Homing}
+The stepper motor requires a homing procedure at startup to establish a known reference position. This was achieved using a permanent magnet and a digital Hall-effect sensor (A3144).
+The sensor outputs a low-high signal when exposed to a magnetic field, allowing precise detection of the home position.
+
+A startup procedure was set up, where robot slowly rotates clockwise untill it reaches a low signal from the hall sensor.
+
+This ensures a consistent reference frame for motion planning and prevents accumulated positioning errors.
+
 \subsection{Servomotors}
 Charakterystyka serw (zakres 180°)
 
@@ -9,7 +66,7 @@ Wymagania momentowe dla osi ( tu torque analysis)
 Zależność momentu od napięcia
 Prądy w najgorszym przypadku
 
-\subsection{PCA9685 module}
+\subsection{PCA9685 PWM Driver}
 Dlaczego RPi nie generuje PWM stabilnie, i dlaczego lepiej to oddelegować 
 Zalety PCA9685 (16 kanałów, I2C, 12-bit resolution)
 Umieszczenie modułu na obrotowej podstawie + slip ring
@@ -21,36 +78,14 @@ Dodatkowo pozwala to na umiejscowienie modułu PCA9685 w obracającej się czę�
 
 Serwonapędy osi 2, 3 i 4 przy zasilaniu napięciem 7,4V pozwalają uzyskać z nich maksymalny moment siły, natomiast ostatnie dwa serwonapędy są obsługiwane napięciem 6V. Dodatkowo, sterownik PCA9685 przyjmuje napięcie 5V. W takim wypadku należy zamocować regulator napięcia Buck Converter, który zmniejsza napięcie z małymi stratami energii do 6V, natomiast do PCA9685 dodatkowo zamontować regulator liniowy LM7805 zmniejszający napięcie do 5V.
 
-\section{Stepper motor}
-Model JK42HS48-1204
-Wymagania prądowe
-Sterownik DRV8825 – napięcia, prąd, mikro-kroki
-Dlaczego Raspberry Pi nie nadaje się (lack of real-time)
-Testy na prototypowej płytce
-A3144 Hall sensor for homing
-
-Do poruszania pierwszą osią zastosowano silnik krokowy JK42HS48-1204, który kontrolowany jest przy pomocy sterownika serwonapędu DRV8825. 
-Probem jest taki, że Raspberry pi nie nadaje się do generowania dobrego sygnału sterującego silnikiem krokowym, ponieważ raspberry pi z systemem linux nie jest systemem real time. Próby sterowania silnika krokowego przez Raspberry pi zakończyły się porażką, silnik wydawał tylko wysokie piskliwe dźwięki. 
-W takich wypadkach, stosuje się połączenie mikroprocesora jakim jest raspberry z mikrokontrolerem. Do tego służy micro-ros. W moim projekcie użyję ESP32, potężnego mikrokontrolera zawierającego moduł bluetooth i wifi.
-
-Stworzono płytkę prototypową w której połączono ESP ze sterownikiem. Sterownik należało nastroić do pracy z 12V (9V nie zadziałało) tak, żeby pomiędzy potencjometrem a masą było napięcie o wartości dwukrotnie niższej niż natężenie silnika. Wykonano testy, wszystko śmigało, następnie spróbowano wgrać microros i sterować silnikiem przez raspberry
-
-Silnik krokowy wymaga bazowania przy starcie aby zapewnić poprawną orientację robota. Do tego wykorzystano magnes oraz cyfrowy czujnik halla A3144, który na wyjściu daje stan wysoki przy pojawieniu się pola magnetycznego. 
-
-\section{ESP32 microcontroller with microROS}
-Rola ESP32 jako warstwa real-time
-
-Połączenie z DRV8825 i PCA9685
-
-Komunikacja z ROS2 przez microROS agent
-
-UART/WiFi options
-
-Do generowania sygnału I2C oraz poprawnie sterować sterownikiem silnika krokowego dobrą praktyką jest użycie mikrokontrolera. W projekcie zdecydowano się na użycie ESP32, które poza komunikacją przez przewód umożliwia komunikację przez WiFi. Dodatkowo ESP32 posiada wystaczająco dużo pamięci oraz jest oficjalnie wspierane przez MicroROS. Jest to narzędzie pozwalające na połączenie mikrokontrolera z projektem ROS2, łącząc się przez tzw. microros_agent, który działa na mikroprocesorze z projektem ROS2.
 
 
-\section{Powering the system}
+
+
+
+\section{Power Distribution and Voltage Regulation}
 W projekcie znajdują się elementy wymagające różnych napięć: 
+
 \begin{itemize}
     \item Silnik krokowy: 12V
     \item Wentylator: 12V
@@ -65,8 +100,15 @@ Serwonapędy w najgorszym wypadku 3,5A, ale skoro pierwszy silnik się zatnie pr
 Mam 3 duże serwa pobierające 3,5A, dwa małe pobierające najgorzej 750mA, i silnik krokowy 1,2A. Więc najgorzej około 5,5A. Więc w najgorszym wypadku serwa będą pobierać 4,3A. Więc potrzebuję regulatora napięcia który zbije 12V do 7,4V do serwonapędów i wytrzyma 4,3A. Buck converter też zwiększy ampery. Więc 12V * xA = 7,4V x 12A, czyli x=7,4A, więc teoretycznie zasilacz 12V 8A jest jeszcze z małym zapasem.
 Wniosek: Zasilacz 12V 10A powinien starczyć
 
-\section{Schemat elektroniczny całego robota}
+\section{Electrical Schematic and Final Integration}
 Buck converter, Czym jest, jak działa, jaka sprawność, czy podbija natężenie. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Images/electronic_board.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
 
 
 

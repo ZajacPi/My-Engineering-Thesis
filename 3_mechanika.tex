@@ -273,6 +273,13 @@ To ensure smooth rotation in joints, the parts are connected with ball bearings.
 
 Rigid connections between 3D-printed parts can be achieved using press fits, adhesive bonding, or threaded fasteners. However, press fits alone limit serviceability, while self-tapping screws can damage the printed material over time. To ensure that the project can be assembled and disassembled without damaging the structure, brass threaded inserts were used. Inserts were heat-set into the printed components using a soldering iron, creating durable and reliable threaded connections.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/insert.jpeg}
+    \caption{Brass threaded inserts}
+    \label{fig:placeholder}
+\end{figure}
+
 To ensure proper retention of the inserts, the diameter of the printed holes was designed to be slightly smaller than the nominal insert diameter, allowing the surrounding plastic to melt and secure the insert during installation.
 
 
@@ -322,59 +329,115 @@ Electronic components such as the stepper motor driver and power converters gene
 \subsection{First Axis Rotation Mechanism}
 The first rotational axis connects the robotic arm to the base and must provide high rigidity while allowing smooth, low-friction motion. To achieve this, the joint was supported by two radial ball bearings, which ensure precise alignment and resistance to bending moments. Additionally, a needle bearing was used to carry axial loads resulting from the weight of the arm, preventing increased friction under vertical loading.
 
-\\(image of the real bearings)\\
 
 The first axis is driven by a stepper motor via a GT2 timing belt transmission. This solution allows for flexible torque adjustment through pulley ratio selection and isolates the motor from axial loads.
 
 Additionally such design allowed for the implementation of a hollow rotating shaft. This enables routing of power and signal cables through the joint using a slip ring, eliminating cable twisting and allowing unlimited rotation of the base.
-
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\linewidth]{image.png}
-    \caption{Cross-sectional view of the first axis assembly}
-    \label{fig:first_axis_cross_section}
+    \includegraphics[width=0.75\linewidth]{Images/base_top_cross_section.jpg}
+    \caption{Top part of the base cross section}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/real_base_top.png}
+    \caption{Assembly of the first axis}
+    \label{fig:placeholder}
 \end{figure}
 
 
+\newpage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\linewidth]{Images/full_base_and_axis1.png}
+    \caption{Assembled Base with first axis}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\linewidth]{Images/full_base.jpeg}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+\newpage
 \section{Arm Structure}
 Using stepper motors in joints requires the implementation of external gear system to increase torque. This increases mechanical complexity, mass, and manufacturing effort, particularly when custom gears must be fabricated. To avoid this and reduce the mass of the arm, joints two through six were designed around standard-sized servomotors. These actuators incorporate an internal gear system that allows them to deliver high torque while remaining relatively small and lightweight. This approach simplified the mechanical design and reduced the number of custom components.
 
 \subsection{Shoulder and Elbow Joint (second and third axis)}
+The shoulder and elbow joints are subjected to the highest mechanical loads in the robotic arm, as they must support the mass of all other links, actuators, and the payload. For this reason, these joints were designed with a strong emphasis on rigidity and precise alignment.
+In the project, both links are exactly the same, but rotated 180 degrees. The ridgidity was achieved by making the servomotor openings with a very small offset, and attached to the part using bolts and heat-set brass inserts. The smooth rotation is achieved by using a ball bearing, and connections are design to snap into place.
 
-\subsection{Wrist (Ases 4-6)}
-This is important and deserves a subchapter:
+\subsection{Wrist (Axes 4-6)}
+The wrist assembly is responsible for controlling the orientation of the end effector and must provide high dexterity while maintaining low inertia. Unlike the shoulder and elbow joints, the wrist joints are subjected to relatively low mechanical loads. Axis 4  does contribute to lifting the arm, but axes 5 and 6 primarily support the end effector. 
 
+For this reason, axis 4 was controlled by the same servomotor as axis 3, and compact servomotors with lower torque ratings were selected for axes five and six. The wrist was designed as a modular assembly, allowing individual joints to be accessed and serviced independently.
 
 \subsection{Cable Management Strategy}
-To hide cables that power and control the motors inside the arm, the arm structure was designed with a tunnel that goes through the whole length, and between the parts the cables run through the inside of the ball bearing.
+To protect power and signal cables and improve the overall appearance and reliability of the system, all wiring was routed internally through the arm structure. The arm components used took advantage of the 3D printing technology and were designed with an internal channel running along their entire length, allowing cables to pass between joints without external exposure. It would be much more difficult to manufacture similar part using subtractive technologies.
+At the joint interfaces, cables are routed through the inner diameter of the ball bearings. This solution prevents cable bending and abrasion during joint rotation while maintaining a compact and mechanically clean design.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\linewidth]{Images/Arm2.png}
-    \caption{Ramię 2}
-    \label{fig:placeholder}
-\end{figure}
 
-\begin{figure}
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\linewidth]{Images/cables_through_bearing.jpg}
+    \includegraphics[width=0.5\linewidth]{Images/cable_system.png}
     \caption{Enter Caption}
     \label{fig:placeholder}
 \end{figure}
 
-\section{End Effector (Wrist + Tools)}
-Do obsługi ostatnich dwóch osi użyto lekkich serwomechanizmów małej mocy. Została ona zaprojektowana z myślą o łatwym dołączaniu różnego rodzaju narzędzi.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/cables_through_bearing.jpg}
+    \caption{Routing of cables through the joint bearingn}
+    \label{fig:cable_bearing}
+\end{figure}
 
-To move last two joints in the arm .
+\newpage
+\section{End Effector}
+The end effector was designed to be lightweight and modular, allowing easy attachment of various tools depending on the application. Low-power micro servomotors were used to actuate the final joints, as the required torques are minimal and limited to tool manipulation.
+
+The mechanical interface of the end effector enables quick replacement or modification, making the system suitable for experimentation and future extensions.
+
 
 \subsection{TCP Reference Tool}
- W pierwszych testach zaprojektowano prosty element reprezentujący osie x, y oraz z. Ma on na celu wizualizację położenia TCP (tool center point).\\
+During initial testing and calibration, a simple reference tool was designed to visualise the tool center point (TCP). The tool represents the local coordinate axes \(x\), \(y\), and \(z\), allowing intuitive verification of position and orientation in both the physical system and the ROS2 visualisation environment.
 
-\\(zdjęcie końcówki)\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Images/TCP.jpeg}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+This reference tool proved useful for validating kinematic models and ensuring consistency between the mechanical design and software representation.
 
 
 \section{Assembly, Tolerances, and Iteration Process}
-How many iterations
+The mechanical design of the robot underwent several iterations during development. Each iteration focused on improving joint stiffness, fit accuracy, and ease of assembly. Test prints were used to validate tolerances, bearing fits, and insert placement before finalizing the designs.
+
+This iterative approach allowed design issues to be identified early and resolved efficiently, resulting in a mechanically robust and serviceable final structure.
+
 
 \section{Summary of Mechanical Design}
-CAD, real photos of final project
+The mechanical design of the robotic arm was developed with a strong emphasis on modularity, manufacturability, and cost efficiency. The use of FDM 3D printing enabled rapid prototyping and iterative refinement, as well as creating internal passages for cable routing. The use of servomotors simplified actuator integration.
+
+The final design achieves a balance between structural rigidity and low mass, supports reliable internal cable routing, and provides sufficient dexterity for a wide range of manipulation tasks. Photographs of the assembled robot and CAD models of the final design are presented to illustrate the completed mechanical system.
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\linewidth]{image.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Images/full_robot_arm.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
